@@ -5,14 +5,17 @@ import com.um.gestioncompeticiones.exception.competition.CompetitionNotFoundExce
 import com.um.gestioncompeticiones.exception.match.MatchGenerationException;
 import com.um.gestioncompeticiones.exception.team.TeamAlreadyRegisteredException;
 import com.um.gestioncompeticiones.exception.team.TeamNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -68,6 +71,27 @@ public class GlobalExceptionHandler {
         error.put("error", "MatchGenerationError");
         error.put("message", ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    // Excepciones de las validaciones de los DTO
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+        return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, String> errors = ex.getConstraintViolations()
+                .stream()
+                .collect(Collectors.toMap(
+                        cv -> cv.getPropertyPath().toString(),
+                        cv -> cv.getMessage()
+                ));
+        return ResponseEntity.badRequest().body(errors);
     }
 
     // Excepciones genéricas
