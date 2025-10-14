@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -23,5 +24,7 @@ public class Team {
 
     @ManyToMany(mappedBy = "teams")
     @JsonBackReference
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Competition> competitions;
 }
