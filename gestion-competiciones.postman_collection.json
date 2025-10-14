@@ -1,0 +1,77 @@
+{
+	"info": {
+		"_postman_id": "17b95037-cfd9-4157-9b3d-36e7f8f9e590",
+		"name": "gestion-competiciones",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34758742"
+	},
+	"item": [
+		{
+			"name": "Competition",
+			"item": []
+		},
+		{
+			"name": "Team",
+			"item": [
+				{
+					"name": "create_team",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Team Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/teams",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"teams"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "create_competition",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Rollanga Ros\",\r\n  \"sport\": \"tenis\",\r\n  \"startDate\": \"2025-10-14\",\r\n  \"endDate\": \"2025-10-20\",\r\n  \"numberOfCourts\": \"2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/competitions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"competitions"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
