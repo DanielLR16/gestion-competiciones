@@ -9,8 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
-    // Buscar un equipo por nombre
-    Optional<Team> findByName(String name);
 
     // Verificar si un equipo ya está registrado en una competición concreta
     @Query("""

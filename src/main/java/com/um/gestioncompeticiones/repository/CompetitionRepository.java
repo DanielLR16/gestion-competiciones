@@ -9,9 +9,6 @@ import java.util.Optional;
 @Repository
 public interface CompetitionRepository extends JpaRepository<Competition, Long> {
 
-    // Buscar competición por nombre
-    Optional<Competition> findByName(String name);
-
     // Comprobar si ya existe una competición con un nombre concreto
     boolean existsByName(String name);
 }

@@ -1,5 +1,6 @@
 package com.um.gestioncompeticiones.service;
 
+import com.um.gestioncompeticiones.dto.TeamCreateDTO;
 import com.um.gestioncompeticiones.exception.team.TeamAlreadyRegisteredException;
 import com.um.gestioncompeticiones.exception.team.TeamNotFoundException;
 import com.um.gestioncompeticiones.model.Competition;
@@ -8,6 +9,7 @@ import com.um.gestioncompeticiones.repository.CompetitionRepository;
 import com.um.gestioncompeticiones.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,10 +21,14 @@ public class TeamServiceImpl implements TeamService {
     private final CompetitionRepository competitionRepository;
 
     @Override
-    public Team createTeam(Team team) {
+    public Team createTeam(TeamCreateDTO teamCreateDTO) {
+        Team team = Team.builder()
+                .name(teamCreateDTO.getName())
+                .build();
         return teamRepository.save(team);
     }
 
+    @Transactional
     @Override
     public Team registerTeamToCompetition(Long teamId, Long competitionId) {
         Team team = teamRepository.findById(teamId)
@@ -37,7 +43,6 @@ public class TeamServiceImpl implements TeamService {
                     "Team '" + team.getName() + "' is already registered in competition '" + competition.getName() + "'"
             );
         }
-
 
         // Registrar el equipo en la competición
         team.getCompetitions().add(competition);
@@ -59,9 +64,4 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(() -> new TeamNotFoundException("Team with id " + id + " not found"));
     }
 
-    @Override
-    public Team getTeamByName(String name) {
-        return teamRepository.findByName(name)
-                .orElseThrow(() -> new TeamNotFoundException("Team with name '" + name + "' not found"));
-    }
 }

@@ -6,12 +6,16 @@ import com.um.gestioncompeticiones.model.Match;
 import com.um.gestioncompeticiones.model.Team;
 import com.um.gestioncompeticiones.repository.CompetitionRepository;
 import com.um.gestioncompeticiones.repository.MatchRepository;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +25,6 @@ public class MatchServiceImpl implements MatchService {
 
     private final CompetitionRepository competitionRepository;
     private final MatchRepository matchRepository;
-
-    // Equipos no asignados por competición
-    private final Map<Long, List<Team>> unassignedTeamsPerCompetition = new HashMap<>();
 
     @Override
     public List<Match> generateFirstRound(Long competitionId) {
@@ -39,12 +40,8 @@ public class MatchServiceImpl implements MatchService {
         Collections.shuffle(teams); // Mezcla aleatoria para emparejamiento
 
         List<Match> matches = new ArrayList<>();
-        List<Team> unassignedTeams = new ArrayList<>();
 
-        assignMatches(competition, teams, matches, unassignedTeams);
-
-        // Guardar los equipos no asignados por competición
-        unassignedTeamsPerCompetition.put(competitionId, unassignedTeams);
+        assignMatches(competition, teams, matches);
 
         // Guardar partidos generados
         matchRepository.saveAll(matches);
@@ -52,10 +49,9 @@ public class MatchServiceImpl implements MatchService {
         return matches;
     }
 
-    private void assignMatches(Competition competition, List<Team> teams, List<Match> matches,
-                               List<Team> unassignedTeams) {
+    private void assignMatches(Competition competition, List<Team> teams, List<Match> matches) {
 
-        int totalCourts = competition.getAvailableCourtsPerDay();
+        int totalCourts = competition.getNumberOfCourts();
         int maxMatchesPerDay = totalCourts * MAX_MATCHES_PER_COURT_PER_DAY;
         LocalDate matchDate = competition.getStartDate();
         // Genera los partidos
@@ -75,12 +71,6 @@ public class MatchServiceImpl implements MatchService {
                 }).toList();
 
         matches.addAll(generatedMatches);
-
-        // Equipos que no pudieron jugar en la primera jornada
-        int teamsUsed = generatedMatches.size() * 2;
-        if (teamsUsed < teams.size()) {
-            unassignedTeams.addAll(teams.subList(teamsUsed, teams.size()));
-        }
     }
 
     @Override
@@ -88,8 +78,20 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository.findByCompetitionId(competitionId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Team> getUnassignedTeams(Long competitionId) {
-        return List.of();
+        Competition competition = competitionRepository.findById(competitionId)
+                .orElseThrow(() -> new MatchGenerationException("Competition with id " + competitionId + " not found."));
+
+        // Equipos que ya tienen partido (usando los matches asociados a la competición)
+        Set<Team> assignedTeams = competition.getMatches().stream()
+                .flatMap(match -> Stream.of(match.getTeam1(), match.getTeam2()))
+                .collect(Collectors.toSet());
+
+        // Equipos no asignados = todos - asignados
+        return competition.getTeams().stream()
+                .filter(team -> !assignedTeams.contains(team))
+                .toList();
     }
 }

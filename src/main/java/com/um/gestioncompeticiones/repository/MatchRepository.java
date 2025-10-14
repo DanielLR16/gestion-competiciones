@@ -12,7 +12,4 @@ public interface MatchRepository  extends JpaRepository<Match, Long> {
 
     // Obtener todos los partidos de una competición
     List<Match> findByCompetitionId(Long competitionId);
-
-    // Obtener los partidos de una competición en una fecha concreta (útil para primera jornada)
-    List<Match> findByCompetitionIdAndMatchDate(Long competitionId, LocalDate matchDate);
 }
