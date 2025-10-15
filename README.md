@@ -81,3 +81,18 @@ http://localhost:8080/h2-console
   - JDBC URL: jdbc:h2:mem:competicionesdb
   - Usuario: sa
   - Contraseña: (vacía)
+
+---
+
+## Mejoras
+Algunas mejoras futuras que podrían implementarse en la aplicación incluyen:
+
+- **Autenticación y autorización**: Añadir control de acceso por roles (administrador, usuario) usando Spring Security.
+- **Filtros y búsqueda avanzada**: Permitir buscar competiciones, equipos o partidos por nombre, fecha, etc.
+- **Paginación de resultados**: Para consultas que devuelven listas grandes, como todas las competiciones o todos los equipos.
+- **Historial de partidos y estadísticas**: Guardar resultados de partidos, ranking de equipos y estadísticas por competición.
+- **Notificaciones o alertas**: Enviar notificaciones cuando se generan partidos o se registran equipos.
+- **Front-end de usuario**: Crear una interfaz web para interactuar con la API de forma amigable.
+- **Persistencia permanente**: Integrar una base de datos externa (PostgreSQL, MySQL) en lugar de H2 en memoria.
+- **Validaciones y manejo de errores más avanzado**: Mensajes de error más claros y códigos HTTP específicos para cada situación.
+- **Documentación interactiva mejorada**: Extender Swagger con ejemplos y respuesta de errores detallados.
