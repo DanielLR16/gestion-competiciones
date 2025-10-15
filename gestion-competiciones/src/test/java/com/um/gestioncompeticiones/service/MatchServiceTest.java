@@ -157,14 +157,16 @@ public class MatchServiceTest {
     @Test
     void getMatchesByCompetitionOk() {
         Match match = Match.builder().competition(competition).team1(team1).team2(team2).build();
-        when(matchRepository.findByCompetitionId(COMPETITION_ID)).thenReturn(List.of(match));
+        competition.getMatches().add(match);
+
+        when(competitionRepository.findById(COMPETITION_ID)).thenReturn(Optional.of(competition));
 
         List<Match> result = matchService.getMatchesByCompetition(COMPETITION_ID);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(competition, result.get(0).getCompetition());
-        verify(matchRepository, times(1)).findByCompetitionId(COMPETITION_ID);
+        verify(competitionRepository, times(1)).findById(COMPETITION_ID);
     }
 
     // -------------------------------------------------
@@ -172,14 +174,27 @@ public class MatchServiceTest {
     // -------------------------------------------------
     @Test
     void getMatchesByCompetitionEmpty() {
-        when(matchRepository.findByCompetitionId(COMPETITION_ID)).thenReturn(List.of());
+        when(competitionRepository.findById(COMPETITION_ID)).thenReturn(Optional.of(competition));
 
         List<Match> result = matchService.getMatchesByCompetition(COMPETITION_ID);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
-        verify(matchRepository, times(1)).findByCompetitionId(COMPETITION_ID);
+        verify(competitionRepository, times(1)).findById(COMPETITION_ID);
+    }
+
+    // -------------------------------------------------
+    // Test: Obtener partidos de una competición inexistente
+    // -------------------------------------------------
+    @Test
+    void getMatchesByCompetitionNotFound() {
+        when(competitionRepository.findById(NON_EXISTENT_COMPETITION_ID)).thenReturn(Optional.empty());
+
+        assertThrows(MatchGenerationException.class,
+                () -> matchService.getMatchesByCompetition(NON_EXISTENT_COMPETITION_ID));
+
+        verify(competitionRepository, times(1)).findById(NON_EXISTENT_COMPETITION_ID);
     }
 
     // -------------------------------------------------

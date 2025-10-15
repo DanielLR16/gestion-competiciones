@@ -75,7 +75,9 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public List<Match> getMatchesByCompetition(Long competitionId) {
-        return matchRepository.findByCompetitionId(competitionId);
+        Competition competition = competitionRepository.findById(competitionId)
+                .orElseThrow(() -> new MatchGenerationException("Competition with id " + competitionId + " not found."));
+        return competition.getMatches();
     }
 
     @Transactional(readOnly = true)
