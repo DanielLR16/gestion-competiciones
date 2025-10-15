@@ -1,13 +1,16 @@
 package com.um.gestioncompeticiones.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.um.gestioncompeticiones.exception.competition.CompetitionAlreadyExistsException;
 import com.um.gestioncompeticiones.exception.competition.CompetitionNotFoundException;
 import com.um.gestioncompeticiones.exception.match.MatchGenerationException;
+import com.um.gestioncompeticiones.exception.match.MatchNotFoundException;
 import com.um.gestioncompeticiones.exception.team.TeamAlreadyRegisteredException;
 import com.um.gestioncompeticiones.exception.team.TeamNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -25,10 +28,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleCompetitionExists(CompetitionAlreadyExistsException ex) {
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
-        error.put("status", HttpStatus.BAD_REQUEST.value());
+        error.put("status", HttpStatus.CONFLICT.value());
         error.put("error", "CompetitionAlreadyExists");
         error.put("message", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(CompetitionNotFoundException.class)
@@ -46,10 +49,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleTeamAlreadyRegistered(TeamAlreadyRegisteredException ex) {
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
-        error.put("status", HttpStatus.BAD_REQUEST.value());
+        error.put("status", HttpStatus.CONFLICT.value());
         error.put("error", "TeamAlreadyRegistered");
         error.put("message", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(TeamNotFoundException.class)
@@ -73,6 +76,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MatchNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleMatchNotFound(MatchNotFoundException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("timestamp", LocalDateTime.now());
+        error.put("status", HttpStatus.NOT_FOUND.value());
+        error.put("error", "MatchNotFound");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     // Excepciones de las validaciones de los DTO
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -92,6 +105,32 @@ public class GlobalExceptionHandler {
                         cv -> cv.getMessage()
                 ));
         return ResponseEntity.badRequest().body(errors);
+    }
+
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidFormat(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+        if (cause instanceof InvalidFormatException invalidFormatException &&
+                invalidFormatException.getTargetType().equals(java.time.LocalDate.class)) {
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "error", "BadRequest",
+                            "message", "Fecha inválida. Formato esperado: yyyy-MM-dd y valores válidos para año/mes/día",
+                            "status", "400"
+                    ));
+        }
+
+        // Otros casos
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                        "error", "BadRequest",
+                        "message", ex.getMessage(),
+                        "status", "400"
+                ));
     }
 
     // Excepciones genéricas

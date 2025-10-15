@@ -1,6 +1,7 @@
 package com.um.gestioncompeticiones.service;
 
 import com.um.gestioncompeticiones.exception.match.MatchGenerationException;
+import com.um.gestioncompeticiones.exception.match.MatchNotFoundException;
 import com.um.gestioncompeticiones.model.Competition;
 import com.um.gestioncompeticiones.model.Match;
 import com.um.gestioncompeticiones.model.Team;
@@ -29,7 +30,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<Match> generateFirstRound(Long competitionId) {
         Competition competition = competitionRepository.findById(competitionId)
-                .orElseThrow(() -> new MatchGenerationException("Competition with id " + competitionId + " not found."));
+                .orElseThrow(() -> new MatchNotFoundException("Competition with id " + competitionId + " not found."));
 
         Set<Team> teamsSet = competition.getTeams();
         if (teamsSet.size() < 2) {
@@ -76,7 +77,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<Match> getMatchesByCompetition(Long competitionId) {
         Competition competition = competitionRepository.findById(competitionId)
-                .orElseThrow(() -> new MatchGenerationException("Competition with id " + competitionId + " not found."));
+                .orElseThrow(() -> new MatchNotFoundException("Competition with id " + competitionId + " not found."));
         return competition.getMatches();
     }
 
@@ -84,7 +85,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<Team> getUnassignedTeams(Long competitionId) {
         Competition competition = competitionRepository.findById(competitionId)
-                .orElseThrow(() -> new MatchGenerationException("Competition with id " + competitionId + " not found."));
+                .orElseThrow(() -> new MatchNotFoundException("Competition with id " + competitionId + " not found."));
 
         // Equipos que ya tienen partido (usando los matches asociados a la competición)
         Set<Team> assignedTeams = competition.getMatches().stream()

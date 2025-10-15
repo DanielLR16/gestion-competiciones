@@ -1,6 +1,7 @@
 package com.um.gestioncompeticiones.service;
 
 import com.um.gestioncompeticiones.exception.match.MatchGenerationException;
+import com.um.gestioncompeticiones.exception.match.MatchNotFoundException;
 import com.um.gestioncompeticiones.model.Competition;
 import com.um.gestioncompeticiones.model.Match;
 import com.um.gestioncompeticiones.model.Team;
@@ -86,7 +87,7 @@ public class MatchServiceTest {
     void generateFirstRoundFailedCompetitionNotFound() {
         when(competitionRepository.findById(NON_EXISTENT_COMPETITION_ID)).thenReturn(Optional.empty());
 
-        assertThrows(MatchGenerationException.class,
+        assertThrows(MatchNotFoundException.class,
                 () -> matchService.generateFirstRound(NON_EXISTENT_COMPETITION_ID));
 
         verify(matchRepository, never()).saveAll(anyList());
@@ -191,7 +192,7 @@ public class MatchServiceTest {
     void getMatchesByCompetitionNotFound() {
         when(competitionRepository.findById(NON_EXISTENT_COMPETITION_ID)).thenReturn(Optional.empty());
 
-        assertThrows(MatchGenerationException.class,
+        assertThrows(MatchNotFoundException.class,
                 () -> matchService.getMatchesByCompetition(NON_EXISTENT_COMPETITION_ID));
 
         verify(competitionRepository, times(1)).findById(NON_EXISTENT_COMPETITION_ID);
@@ -240,7 +241,7 @@ public class MatchServiceTest {
     void getUnassignedTeamsCompetitionNotFound() {
         when(competitionRepository.findById(NON_EXISTENT_COMPETITION_ID)).thenReturn(Optional.empty());
 
-        assertThrows(MatchGenerationException.class,
+        assertThrows(MatchNotFoundException.class,
                 () -> matchService.getUnassignedTeams(NON_EXISTENT_COMPETITION_ID));
 
         verify(competitionRepository, times(1)).findById(NON_EXISTENT_COMPETITION_ID);
