@@ -96,3 +96,8 @@ Algunas mejoras futuras que podrían implementarse en la aplicación incluyen:
 - **Persistencia permanente**: Integrar una base de datos externa (PostgreSQL, MySQL) en lugar de H2 en memoria.
 - **Validaciones y manejo de errores más avanzado**: Mensajes de error más claros y códigos HTTP específicos para cada situación.
 - **Documentación interactiva mejorada**: Extender Swagger con ejemplos y respuesta de errores detallados.
+
+---
+
+## Autor
+Hecho por: Daniel León Ramírez
